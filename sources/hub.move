@@ -1,0 +1,38 @@
+module hub::hub;
+
+use sui::url;
+use sui::coin::{Self, TreasuryCap};
+
+
+public struct HUB has drop {}
+
+fun init (hub: HUB, ctx: &mut TxContext){
+    let strawberry_icon = url::new_unsafe_from_bytes(
+        b"https://unsplash.com/photos/red-strawberry-fruit-with-white-background-xnRg3xDcNnE"
+    
+    );
+
+    let decimals :u8 = 8;
+
+
+
+    let (treasury_cap, metadata) = coin::create_currency(
+
+        hub,
+        decimals,
+        b"HUB",
+        b"SUI Hub Lagos",
+        b"Coin created at SUI HUb 24-06-2025",
+        option::some(strawberry_icon),
+        ctx,
+    );
+
+
+    transfer::public_freeze_object(metadata);
+    transfer::public_transfer(treasury_cap, tx_context::sender(ctx));
+}
+
+public entry fun mint(treasury_cap: &mut TreasuryCap<HUB>, amount : u64, recipient:address, ctx: &mut TxContext) {
+    let coin = coin::mint(treasury_cap, amount, ctx);
+    transfer::public_transfer(coin, recipient);
+}
